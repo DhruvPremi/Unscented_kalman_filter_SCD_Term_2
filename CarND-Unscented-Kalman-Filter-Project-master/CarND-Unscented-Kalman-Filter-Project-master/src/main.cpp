@@ -129,6 +129,19 @@ int main()
     	  estimations.push_back(estimate);
 
     	  VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+
+        int total_num = 0;
+        double max_nis = 7.3;
+        for(int i=0; i < ukf.nis.size(); i +=1)
+        {
+          if(ukf.nis[i] > max_nis)
+          {
+            total_num += 1;
+          }
+        }
+
+        cout << "NIS == " << double(total_num)/ukf.nis.size() << endl;
+
         cout << "Calculate RMSE " << endl;
           json msgJson;
           msgJson["estimate_x"] = p_x;
@@ -150,6 +163,9 @@ int main()
     }
 
   });
+
+
+
 
   // We don't need this since we're not using HTTP but if it's removed the program
   // doesn't compile :-(

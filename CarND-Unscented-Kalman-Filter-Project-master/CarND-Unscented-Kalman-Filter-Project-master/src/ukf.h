@@ -9,6 +9,7 @@
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using std::vector;
 
 class UKF {
 public:
@@ -21,6 +22,8 @@ public:
 
   ///* if this is false, radar measurements will be ignored (except for init)
   bool use_radar_;
+
+  vector<double> nis;
 
   ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
   VectorXd x_;

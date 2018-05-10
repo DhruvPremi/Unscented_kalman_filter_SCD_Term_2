@@ -113,7 +113,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
   // P and X will be changed
 
   //  Then Based on L or R Measurement update should happen and updates to P and X
-  cout << "In ProcessMeasurement" << endl;
+  // cout << "In ProcessMeasurement" << endl;
   if (!is_initialized_) 
   {
     /**
@@ -123,7 +123,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
       * Remember: you'll need to convert radar from polar to cartesian coordinates.
     */
     // first measurement
-    cout << "UKF_1: " << endl;
+    // cout << "UKF_1: " << endl;
     // cout << meas_package << endl;
 
     if (meas_package.sensor_type_ == MeasurementPackage::RADAR) 
@@ -133,7 +133,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
       Convert radar from polar to cartesian coordinates and initialize state.
       */
       x_ << meas_package.raw_measurements_[0] * cos(meas_package.raw_measurements_[1]),  meas_package.raw_measurements_[0] * sin(meas_package.raw_measurements_[1]), 0, 0, 0;
-      cout << "UKFa: " << endl;
+      // cout << "UKFa: " << endl;
 
     }
     else if (meas_package.sensor_type_ == MeasurementPackage::LASER) 
@@ -142,7 +142,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
       Initialize state.
       */
       x_  << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0, 0, 0;
-      cout << "UKFb: " << endl;
+      // cout << "UKFb: " << endl;
     }
 
     // done initializing, no need to predict or update
@@ -150,40 +150,40 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package)
     time_us_ = meas_package.timestamp_;
     is_initialized_ = true;
 
-    cout << "Init Done";
+    // cout << "Init Done";
     return;
   }
 
   double delta_t = (double)(meas_package.timestamp_ - time_us_) / 1000000.0;
 
-  cout << "Delta T  ===  " << delta_t << endl;
-  cout << "Time Delta _t " << delta_t << endl;
+  // cout << "Delta T  ===  " << delta_t << endl;
+  // cout << "Time Delta _t " << delta_t << endl;
   time_us_ = meas_package.timestamp_;
 
-  cout << "Before Prediction  " << P_ << endl;
+  // cout << "Before Prediction  " << P_ << endl;
 
 
-  cout << "Going in Prediction" << endl;
+  // cout << "Going in Prediction" << endl;
   Prediction(delta_t);
 
-  cout << "After Prediction  " << P_ << endl;
+  // cout << "After Prediction  " << P_ << endl;
 
 
   if (meas_package.sensor_type_ == MeasurementPackage::RADAR) 
   {
     // Radar updates 
     UpdateRadar(meas_package);
-    cout << "Radar " << endl;
+    // cout << "Radar " << endl;
   } 
   else 
   {
     // Laser updates
     UpdateLidar(meas_package);
-    cout << "Lidar " << endl;
+    // cout << "Lidar " << endl;
 
   }
 
-    cout << "After Measurement  " << P_ << endl;
+    // cout << "After Measurement  " << P_ << endl;
 }
 
 /**
@@ -206,29 +206,29 @@ void UKF::Prediction(double delta_t) {
   VectorXd x_aug = VectorXd(n_aug_);
   MatrixXd P_aug = MatrixXd(n_aug_, n_aug_);
   P_aug.fill(0.0); 
-  cout << "Prediction 1" << endl;
+  // cout << "Prediction 1" << endl;
   x_aug.head(5) = x_;
   x_aug(5) = 0;
   x_aug(6) = 0;
 
 
-  cout << "Prediction 2" << endl;
+  // cout << "Prediction 2" << endl;
   //create augmented covariance matrix
   P_aug.fill(0.0);
   P_aug.topLeftCorner(n_x_, n_x_) = P_;
   P_aug(5,5) = std_a_ * std_a_;
   P_aug(6,6) = std_yawdd_ * std_yawdd_;
 
-  cout << "Prediction 3" << endl;
+  // cout << "Prediction 3" << endl;
   //create square root matrix
   MatrixXd L = P_aug.llt().matrixL();
 
-  cout << "Prediction 4" << endl;
+  // cout << "Prediction 4" << endl;
   MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
   Xsig_aug.fill(0.0);
   Xsig_aug.col(0)  = x_aug;
   
-  cout << "Prediction 5" << endl;
+  // cout << "Prediction 5" << endl;
   int i;
   double angle_temp;
 
@@ -245,7 +245,7 @@ void UKF::Prediction(double delta_t) {
     // Xsig_aug.col(i + 1 + n_aug_)[3] = atan2(sin(angle_temp) , cos(angle_temp));
   }
 
-  cout << "Prediction 6" << endl;
+  // cout << "Prediction 6" << endl;
   for(i=0 ; i < (2*n_aug_ + 1) ; i+=1)
   {
       VectorXd vec = Xsig_aug.col(i);
@@ -257,7 +257,7 @@ void UKF::Prediction(double delta_t) {
       // Xsig_pred_.col(i)[3] = atan2(sin(angle_temp) , cos(angle_temp));
   }
 
-  cout << "Prediction 7" << endl;
+  // cout << "Prediction 7" << endl;
   for(i = 0; i < (2*n_aug_ + 1); i += 1)
   {
         if(i == 0)
@@ -269,7 +269,7 @@ void UKF::Prediction(double delta_t) {
         weights_[i] = 0.5/(lambda_ + n_aug_);
   }
 
-  cout << "Prediction 8" << endl; 
+  // cout << "Prediction 8" << endl; 
   VectorXd x_temp = VectorXd(n_x_);
   x_temp.fill(0.0);
 
@@ -281,7 +281,7 @@ void UKF::Prediction(double delta_t) {
   // x_[3] = atan2(sin(x_[3]), cos(x_[3]));
   // x_[4] = atan2(sin(x_[4]), cos(x_[4]));
 
-  cout << "Prediction 9" << endl;
+  // cout << "Prediction 9" << endl;
 
   MatrixXd P_temp = MatrixXd(n_x_, n_x_);
   P_temp.fill(0.0);
@@ -296,7 +296,7 @@ void UKF::Prediction(double delta_t) {
   x_ = x_temp;
   P_ = P_temp;
   
- cout << "Prediction Done" << endl;
+ // cout << "Prediction Done" << endl;
 
 }
 
@@ -305,7 +305,7 @@ VectorXd UKF::RateOfChangeState(double v, double phi, double phi_dot, double v_a
     VectorXd vec;
     vec = VectorXd(5);
     
-    cout << "Prediction 6a" << endl;
+    // cout << "Prediction 6a" << endl;
     double angle_temp;
 
     if(phi_dot > 0.001)
@@ -336,7 +336,7 @@ VectorXd UKF::RateOfChangeState(double v, double phi, double phi_dot, double v_a
         vec[4] = 0 + (delta_t * v_phi);
     }
     
-    cout << "Prediction 6b" << endl;
+    // cout << "Prediction 6b" << endl;
     return vec;
     
 }
@@ -364,6 +364,9 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   MatrixXd Si = S.inverse();
   MatrixXd PHt = P_ * Ht;
   MatrixXd K = PHt * Si;
+
+
+  nis.push_back(double(y.transpose() * Si * y));
 
   //new estimate
   x_ = x_ + (K * y);
@@ -446,6 +449,8 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
   // Xsig_pred_
 
+  VectorXd diff_z = z -  z_pred;
+  nis.push_back(diff_z.transpose() * S.inverse() * diff_z);
   MatrixXd Tc = MatrixXd(n_x_, n_z_);
   Tc.fill(0.0);
 
